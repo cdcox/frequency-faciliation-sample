@@ -88,7 +88,7 @@ def update(state_values,params,t_spike,measure_pts,t,prev_t):
     Rrel = dRrel_dt+Rrel
     krecov = new_krecov
     state_values = [glu, Cai, Prel, Rrel,krecov,ICa]
-    return state_values,measure_pts,t
+    return state_values,measure_pts
 
 def SSE_and_val_extract(real,calculated,measurepts):
     '''extract points from  real data set for comparison and calcualted sum square error'''
@@ -96,7 +96,7 @@ def SSE_and_val_extract(real,calculated,measurepts):
     SSE = np.sum(np.square(np.subtract(real,calc_measure)))
     return SSE,calc_measure
 
-def run_at_multiple_freqs(params,real_data):
+def run_at_multiple_freqs(params,real_data_for_error_calc):
     '''This takes the parameters and frequencies and runs over the time range.
     It outputs graphs comparing simulated and real data'''
     result = {'glu':{},'Cai':{},'Prel':{},'Rrel':{},'ICa':{}}    
@@ -107,12 +107,12 @@ def run_at_multiple_freqs(params,real_data):
         t_spike = np.arange(0,total_spikes*step2,step2) #spiking time based on frequency
         step=1
         measure_pts = [] #captures time of spikes
-        state_values,result = initialize(params,result)
+        state_values,result = initialize(params,result,freqs)
         for t in np.arange(1000):
             prev_t=t
             t=t+step
             state_values,measure_pts = update(state_values,params,t_spike,measure_pts,t,prev_t)
-            result = observe(state_values,result)
+            result = observe(state_values,result,freqs)
             
         #Glu values are most comparable to the frequency facilitation values also normalize to 100
         values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
@@ -144,5 +144,5 @@ if __name__ =='__main__':
     params = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
-    run_at_multiple_freqs(params,real_data)
+    run_at_multiple_freqs(params,real_data_for_error_calc)
 
