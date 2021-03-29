@@ -97,7 +97,7 @@ def sse(real,calculated,measurepts):
     return SSe,calc_measure
        
 if __name__ =='__main__':
-    data_csv = 'FFCA1.csv'
+    data_csv = 'CA1.csv'
     real_data_for_error_calc = load_real_data(data_csv)
     
     #adding and packing parameters, current values based on state space search
@@ -114,6 +114,7 @@ if __name__ =='__main__':
     param_dict = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
+    
     result = AutoVivification()
     
     for freqs in real_data_for_error_calc.keys():
