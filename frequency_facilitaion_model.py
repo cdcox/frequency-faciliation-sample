@@ -57,8 +57,6 @@ def update(state_values,param_dict,t_spike,measure_pts):
     tauCai = param_dict['tauCai']
     krecov0 = param_dict['krecov0']
     krecovmax = param_dict['krecovmax']
-    krecovmax = param_dict['krecovmax']
-    krecov0 = param_dict['krecov0']
     Prel_max = param_dict['Prel_max']
     n = 4
     nTot = 1
