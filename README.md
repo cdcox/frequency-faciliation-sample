@@ -2,7 +2,7 @@
 
 ## Goal
 
-The goal of this is to creat a model of frequency facilitation to probe the properties of various regions of the hippocampus and cortex. A biophysical model is probably not required as the synpatic system can be approxximated as a balance between the number of synaptic sites available and the probability of release, with a refresh rate based on the recovery time of the ready releasable pool. As multiple inputs come in, the synaptic calcium increases leading to a higher probability of release as the synaptic pools are depleted. If depletion 'wins out' as in the case of a long recovery time or high intial probability of release (many synaptic sites depleted), then there will be depression. If, however calcium build up wins out low intiail release probability or sufficeintly rapid recovry of ready releasable pool, there will be facilitation.
+The goal of this is to creat a model of frequency facilitation to probe the properties of various regions of the hippocampus and cortex. A biophysical model is probably not required as the synpatic system can be approxximated as a balance between the number of synaptic sites available and the probability of release, with a refresh rate based on the recovery time of the ready releasable pool. As multiple inputs come in, the synaptic calcium increases leading to a higher probability of release as the synaptic pools are depleted. If depletion 'wins out' as in the case of a long recovery time or high intial probability of release (many synaptic sites depleted), then there will be depression. If, however calcium build up wins out low intiail release probability or sufficeintly rapid recovery of ready releasable pool, there will be facilitation.
 
 
 ## Model
