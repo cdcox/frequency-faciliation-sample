@@ -2,7 +2,15 @@
 """
 Created on Thu Feb 25 10:29:34 2021
 
-@author: coxbox
+@author: Conor D Cox cdcox1 [at] gmail.com
+This works by the following steps:
+    1. load in real data to gather target frequencies
+    2. Set parameters for model run and pack them.
+    3. Intialize model parameters and set up times of spikes
+    4. run model for each time step while saving out changing variables.
+    5. output figures showing comparison of model data and real data at various
+    frequencies
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
