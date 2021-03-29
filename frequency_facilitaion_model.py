@@ -6,9 +6,9 @@ Created on Thu Feb 25 10:29:34 2021
 @author: Conor D Cox cdcox1 [at] gmail.com
 This works by the following steps:
     1. load in real data to gather target frequencies
-    2. Set parameters for model run and pack them.
-    3. Intialize model parameters and set up times of spikes
-    4. run model for each time step while saving out changing variables.
+    2. set parameters for model run and pack them
+    3. intialize model parameters and set up times of spikes
+    4. run model for each time step while saving changing state variables
     5. output figures showing comparison of model data and real data at various
     frequencies
 
@@ -45,7 +45,7 @@ def initialize(params,result,freqs):
     return state_values,result
 
 def observe(state_values,result,freqs):
-    ''' Stores state values outside glu these values are "extra" and are mostly
+    ''' Stores state values. Outside glu these values are "extra" and are mostly
     collected to  allow for debugging/further investigation. When running larger
     scale muitple sample runs, it often makes sense to not collect anything but
     glu'''
@@ -60,7 +60,7 @@ def observe(state_values,result,freqs):
 
 def update(state_values,params,t_spike,measure_pts,t,prev_t):
     ''' Takes in parameters and state and updates state based on dynamics Eqs
-    from Lee, Antom,Poon Mcrae 2009'''
+    from Lee, Antom, Poon, Mcrae 2009'''
     
     #Load parameters and state
     KCa = params['KCa']
@@ -93,7 +93,7 @@ def update(state_values,params,t_spike,measure_pts,t,prev_t):
     return state_values,measure_pts
 
 def SSE_and_val_extract(real,calculated,measurepts):
-    '''extract points from  real data set for comparison and calcualted sum square error'''
+    '''extract points from  real data set for comparison and calculates sum square error'''
     calc_measure = calculated[measurepts]
     SSE = np.sum(np.square(np.subtract(real,calc_measure)))
     return SSE,calc_measure
@@ -116,7 +116,7 @@ def run_at_multiple_freqs(params,real_data_for_error_calc):
             state_values,measure_pts = update(state_values,params,t_spike,measure_pts,t,prev_t)
             result = observe(state_values,result,freqs)
             
-        #Glu values are most comparable to the frequency facilitation values also normalize to 100
+        #Glu values are most comparable to the frequency facilitation values, normalized to 100
         values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
         real_data = real_data_for_error_calc[freqs]
         SSE,calc_measure = SSE_and_val_extract(real_data,values_to_compare,measure_pts)
@@ -134,13 +134,13 @@ if __name__ =='__main__':
     real_data_for_error_calc = load_real_data(data_csv)
     
     #adding and packing parameters, current values based on state space search
-    Cai0 = 32#uM Calcium increase per influc
-    KCa = 64#uMms-1 Rate of calcium efflux
+    Cai0 = 32#uM resting calcium
+    KCa = 64#uMms-1 Rate of calcium influx with stimulation
     krecov0 =7.5*10**-3#ms-1 Intial rate of RRP reset
     krecovmax = 2.8*10**-2#ms-1 Max rate of RRP reset
-    Krel = 32 #uM Calcium sensitivery of transmitter release
-    Prel_max = 1# probability Max release per spike
-    Prel0 = 0.29# probability Intial release per spike
+    Krel = 32 #uM Calcium sensitivity of transmitter release
+    Prel_max = 1# probability of Max release per spike
+    Prel0 = 0.29# probability of initial release per spike
     tauCai =25 # Rate of calcium exit
     n=4
     params = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
