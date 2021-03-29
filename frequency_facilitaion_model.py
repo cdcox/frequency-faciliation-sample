@@ -6,6 +6,7 @@ Created on Thu Feb 25 10:29:34 2021
 """
 import numpy as np
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 class AutoVivification(dict):
     """Implementation of perl's autovivification feature."""
@@ -131,13 +132,12 @@ if __name__ =='__main__':
             t=t+step
             state_values,measure_pts = update(state_values,param_dict,t_spike,measure_pts)
             result = observe(state_values,result)
+            
         #Glu values are most comparable to the frequency facilitation values also normalize to 100
         values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
         
         real_data = real_data_for_error_calc[freqs]
         SSE,calc_measure = sse(real_data,values_to_compare,measure_pts)
-        
-        
         plt.figure()
         plt.xlabel('Pulse number')
         plt.ylabel('% first pulse')
