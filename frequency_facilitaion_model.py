@@ -142,7 +142,7 @@ if __name__ =='__main__':
     Prel_max = 1# probability of Max release per spike
     Prel0 = 0.29# probability of initial release per spike
     tauCai =25 # Rate of calcium exit
-    n=4
+
     params = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
