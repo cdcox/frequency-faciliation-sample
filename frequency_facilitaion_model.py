@@ -56,7 +56,7 @@ def observe(state_values,result,freqs):
     return result
     
 
-def update(state_values,params,t_spike,measure_pts,t,tminus1):
+def update(state_values,params,t_spike,measure_pts,t,prev_t):
     ''' Takes in parameters and state and updates state based on dynamics Eqs
     from Lee, Antom,Poon Mcrae 2009'''
     
@@ -72,7 +72,7 @@ def update(state_values,params,t_spike,measure_pts,t,tminus1):
     
     #Run one time step
     input_sum = 0
-    dirac_time_test = (t_spike>=tminus1) * (t_spike<t)
+    dirac_time_test = (t_spike>=prev_t) * (t_spike<t)
     if np.sum(dirac_time_test)>0:
         input_sum=1
         measure_pts.append(t)
@@ -109,9 +109,9 @@ def run_at_multiple_freqs(params,real_data):
         measure_pts = [] #captures time of spikes
         state_values,result = initialize(params,result)
         for t in np.arange(1000):
-            tminus1=t
+            prev_t=t
             t=t+step
-            state_values,measure_pts = update(state_values,params,t_spike,measure_pts,t,tminus1)
+            state_values,measure_pts = update(state_values,params,t_spike,measure_pts,t,prev_t)
             result = observe(state_values,result)
             
         #Glu values are most comparable to the frequency facilitation values also normalize to 100
@@ -144,5 +144,5 @@ if __name__ =='__main__':
     params = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
-    
+    run_at_multiple_freqs(params,real_data)
 
