@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Created on Thu Feb 25 10:29:34 2021
 
@@ -12,6 +13,7 @@ This works by the following steps:
     frequencies
 
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
@@ -102,7 +104,7 @@ def run_at_multiple_freqs(params,real_data_for_error_calc):
     result = {'glu':{},'Cai':{},'Prel':{},'Rrel':{},'ICa':{}}    
     for freqs in real_data_for_error_calc.keys():
         freq = freqs
-        total_spikes =10
+        total_spikes = 10
         interval = 1000/freq
         t_spike = np.arange(0,total_spikes*interval,interval) #spiking time based on frequency
         step=1
