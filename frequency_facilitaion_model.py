@@ -107,7 +107,7 @@ if __name__ =='__main__':
     param_dict = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
-    result = {'glu':{},'Cai':{},'glu':{},'Prel':{},'Rrel':{},'ICa':{}}
+    result = {'glu':{},'Cai':{},'Prel':{},'Rrel':{},'ICa':{}}
     
     for freqs in real_data_for_error_calc.keys():
         freq = freqs
