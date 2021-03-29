@@ -103,8 +103,8 @@ def run_at_multiple_freqs(params,real_data_for_error_calc):
     for freqs in real_data_for_error_calc.keys():
         freq = freqs
         total_spikes =10
-        step2 = 1000/freq
-        t_spike = np.arange(0,total_spikes*step2,step2) #spiking time based on frequency
+        interval = 1000/freq
+        t_spike = np.arange(0,total_spikes*interval,interval) #spiking time based on frequency
         step=1
         measure_pts = [] #captures time of spikes
         state_values,result = initialize(params,result,freqs)
