@@ -8,6 +8,7 @@ A likely output input and output are included below for frequency facilitation i
 
 
 CA1 output at 10Hz of a model found through a large scale state-space search.
+
 ![png](FF 10 Hz.png) 
 
 
