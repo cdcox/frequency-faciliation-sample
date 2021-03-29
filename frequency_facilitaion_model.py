@@ -8,28 +8,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
-class AutoVivification(dict):
-    """Implementation of perl's autovivification feature."""
-    def __getitem__(self, item):
-        try:
-            return dict.__getitem__(self, item)
-        except KeyError:
-            value = self[item] = type(self)()
-            return value
-
 def load_real_data(file_name):
     '''Loading in real data and finding frequencies as defined by headers in CSV'''
     freq_targets = np.genfromtxt(file_name,delimiter=',',skip_header=1,dtype ='float')
     col_names = np.genfromtxt(file_name,delimiter=',',dtype ='int')[0,:].tolist()
-    real_data_for_error_calc = AutoVivification()
+    real_data_for_error_calc = dict()
     for cnn,col_name in enumerate(col_names):
         real_data_for_error_calc[col_name] = freq_targets[:,cnn]
     return real_data_for_error_calc
     
 
 def initialize(param_dict,result):
-    ''' Takes in parameters and generates intial state values and stores it'''
-    
+    ''' Takes in parameters and generates intial state values and stores it'''  
     glu = 0
     Cai = 0
     Prel = param_dict['Prel0']
@@ -45,7 +35,10 @@ def initialize(param_dict,result):
     return state_values,result
 
 def observe(state_values,result):
-    ''' Stores state values'''
+    ''' Stores state values outside glu these values are "extra" and are mostly
+    collected to  allow for debugging/further investigation. When running larger
+    scale muitple sample runs, it often makes sense to not collect anything but
+    glu'''
     glu, Cai, Prel, Rrel,krecov,ICa = state_values
     result['glu'][freqs].append(glu)
     result['Cai'][freqs].append(Cai)
@@ -57,7 +50,7 @@ def observe(state_values,result):
 
 def update(state_values,param_dict,t_spike,measure_pts):
     ''' Takes in parameters and state and updates state based on dynamics Eqs
-    From #### et al'''
+    from Lee, Antom,Poon Mcrae 2009'''
     
     #Load parameters and state
     KCa = param_dict['KCa']
@@ -78,7 +71,7 @@ def update(state_values,param_dict,t_spike,measure_pts):
         input_sum=1
         measure_pts.append(t)
     ICa = KCa*input_sum
-    dCai_dt = ((-Cai + Cai0))/tauCai+ICa #Paper has ICa/TauCai I unwound that for clarity
+    dCai_dt = ((-Cai + Cai0))/tauCai+ICa #Paper has ICa/TauCai I unwound this for clarity
     new_krecov = krecov0+(krecovmax-krecov0)*Cai/(Cai+krecov)
     dRrel_dt = krecov*(1-Rrel)- (Prel*Rrel*input_sum) #Slightly modified from paper
     new_Prel = Prel_max*(Cai**4)/(Cai**4+Krel**4)
@@ -106,17 +99,15 @@ if __name__ =='__main__':
     KCa = 64#uMms-1 Rate of calcium efflux
     krecov0 =7.5*10**-3#ms-1 Intial rate of RRP reset
     krecovmax = 2.8*10**-2#ms-1 Max rate of RRP reset
-    Krel = 32 #uM 
-    Prel_max = 1#probability Max release per spike
-    Prel0 = 0.29#probability Intial release per spike
-    tauCai =25 #Rate of calcium exit
+    Krel = 32 #uM Calcium sensitivery of transmitter release
+    Prel_max = 1# probability Max release per spike
+    Prel0 = 0.29# probability Intial release per spike
+    tauCai =25 # Rate of calcium exit
     n=4
-    param_dict = dict()
     param_dict = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
-    
-    result = AutoVivification()
+    result = {'glu':{},'Cai':{},'glu':{},'Prel':{},'Rrel':{},'ICa':{}}
     
     for freqs in real_data_for_error_calc.keys():
         freq = freqs
@@ -126,7 +117,6 @@ if __name__ =='__main__':
         step=1
         measure_pts = [] #captures time of spikes
         state_values,result = initialize(param_dict,result)
-    
         for t in np.arange(1000):
             tminus1=t
             t=t+step
@@ -135,9 +125,9 @@ if __name__ =='__main__':
             
         #Glu values are most comparable to the frequency facilitation values also normalize to 100
         values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
-        
         real_data = real_data_for_error_calc[freqs]
         SSE,calc_measure = sse(real_data,values_to_compare,measure_pts)
+        
         plt.figure()
         plt.xlabel('Pulse number')
         plt.ylabel('% first pulse')
