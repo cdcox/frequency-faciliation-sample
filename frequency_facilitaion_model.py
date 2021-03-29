@@ -26,13 +26,13 @@ def load_real_data(file_name):
     return real_data_for_error_calc
     
 
-def initialize(param_dict,result):
+def initialize(params,result,freqs):
     ''' Takes in parameters and generates intial state values and stores it'''  
     glu = 0
     Cai = 0
-    Prel = param_dict['Prel0']
+    Prel = params['Prel0']
     Rrel = 1
-    krecov = param_dict['krecov0']
+    krecov = params['krecov0']
     ICa=0
     result['glu'][freqs]=[glu]
     result['Cai'][freqs]=[Cai]
@@ -42,7 +42,7 @@ def initialize(param_dict,result):
     state_values = [glu, Cai, Prel, Rrel,krecov,ICa]
     return state_values,result
 
-def observe(state_values,result):
+def observe(state_values,result,freqs):
     ''' Stores state values outside glu these values are "extra" and are mostly
     collected to  allow for debugging/further investigation. When running larger
     scale muitple sample runs, it often makes sense to not collect anything but
@@ -56,16 +56,16 @@ def observe(state_values,result):
     return result
     
 
-def update(state_values,param_dict,t_spike,measure_pts):
+def update(state_values,params,t_spike,measure_pts,t,tminus1):
     ''' Takes in parameters and state and updates state based on dynamics Eqs
     from Lee, Antom,Poon Mcrae 2009'''
     
     #Load parameters and state
-    KCa = param_dict['KCa']
-    tauCai = param_dict['tauCai']
-    krecov0 = param_dict['krecov0']
-    krecovmax = param_dict['krecovmax']
-    Prel_max = param_dict['Prel_max']
+    KCa = params['KCa']
+    tauCai = params['tauCai']
+    krecov0 = params['krecov0']
+    krecovmax = params['krecovmax']
+    Prel_max = params['Prel_max']
     n = 4
     nTot = 1
     glu,Cai,Prel,Rrel,krecov,ICa = state_values
@@ -88,13 +88,44 @@ def update(state_values,param_dict,t_spike,measure_pts):
     Rrel = dRrel_dt+Rrel
     krecov = new_krecov
     state_values = [glu, Cai, Prel, Rrel,krecov,ICa]
-    return state_values,measure_pts
+    return state_values,measure_pts,t
 
 def SSE_and_val_extract(real,calculated,measurepts):
     '''extract points from  real data set for comparison and calcualted sum square error'''
     calc_measure = calculated[measurepts]
     SSE = np.sum(np.square(np.subtract(real,calc_measure)))
     return SSE,calc_measure
+
+def run_at_multiple_freqs(params,real_data):
+    '''This takes the parameters and frequencies and runs over the time range.
+    It outputs graphs comparing simulated and real data'''
+    result = {'glu':{},'Cai':{},'Prel':{},'Rrel':{},'ICa':{}}    
+    for freqs in real_data_for_error_calc.keys():
+        freq = freqs
+        total_spikes =10
+        step2 = 1000/freq
+        t_spike = np.arange(0,total_spikes*step2,step2) #spiking time based on frequency
+        step=1
+        measure_pts = [] #captures time of spikes
+        state_values,result = initialize(params,result)
+        for t in np.arange(1000):
+            tminus1=t
+            t=t+step
+            state_values,measure_pts = update(state_values,params,t_spike,measure_pts,t,tminus1)
+            result = observe(state_values,result)
+            
+        #Glu values are most comparable to the frequency facilitation values also normalize to 100
+        values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
+        real_data = real_data_for_error_calc[freqs]
+        SSE,calc_measure = SSE_and_val_extract(real_data,values_to_compare,measure_pts)
+        plt.figure()
+        plt.xlabel('Pulse number')
+        plt.ylabel('% first pulse')
+        plt.plot(calc_measure)
+        plt.plot(real_data)
+        plt.legend(['Simulated Values','Real Values'])
+        plt.title('Frequency: '+str(freqs)+' Hz'+' SSE is '+ str(np.round(SSE))+' vs '+data_csv[:-4])
+        plt.savefig('FF '+str(freqs)+' Hz'+'.png')
        
 if __name__ =='__main__':
     data_csv = 'CA1.csv'
@@ -110,35 +141,8 @@ if __name__ =='__main__':
     Prel0 = 0.29# probability Intial release per spike
     tauCai =25 # Rate of calcium exit
     n=4
-    param_dict = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
+    params = {'Cai0':Cai0, 'KCa':KCa,'krecov0':krecov0,
                   'krecovmax':krecovmax,'Krel':Krel,'Prel_max':Prel_max,
                   'Prel0':Prel0,'tauCai':tauCai}
-    result = {'glu':{},'Cai':{},'Prel':{},'Rrel':{},'ICa':{}}
     
-    for freqs in real_data_for_error_calc.keys():
-        freq = freqs
-        total_spikes =10
-        step2 = 1000/freq
-        t_spike = np.arange(0,total_spikes*step2,step2) #spiking time based on frequency
-        step=1
-        measure_pts = [] #captures time of spikes
-        state_values,result = initialize(param_dict,result)
-        for t in np.arange(1000):
-            tminus1=t
-            t=t+step
-            state_values,measure_pts = update(state_values,param_dict,t_spike,measure_pts)
-            result = observe(state_values,result)
-            
-        #Glu values are most comparable to the frequency facilitation values also normalize to 100
-        values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
-        real_data = real_data_for_error_calc[freqs]
-        SSE,calc_measure = SSE_and_val_extract(real_data,values_to_compare,measure_pts)
-        
-        plt.figure()
-        plt.xlabel('Pulse number')
-        plt.ylabel('% first pulse')
-        plt.plot(calc_measure)
-        plt.plot(real_data)
-        plt.legend(['Simulated Values','Real Values'])
-        plt.title('Frequency: '+str(freqs)+' Hz'+' SSE is '+ str(np.round(SSE))+' vs '+data_csv[:-4])
-        plt.savefig('FF '+str(freqs)+' Hz'+'.png')
+
