@@ -84,11 +84,11 @@ def update(state_values,param_dict,t_spike,measure_pts):
     state_values = [glu, Cai, Prel, Rrel,krecov,ICa]
     return state_values,measure_pts
 
-def sse(real,calculated,measurepts):
+def SSE_and_val_extract(real,calculated,measurepts):
     '''extract points from  real data set for comparison and calcualted sum square error'''
     calc_measure = calculated[measurepts]
-    SSe = np.sum(np.square(np.subtract(real,calc_measure)))
-    return SSe,calc_measure
+    SSE = np.sum(np.square(np.subtract(real,calc_measure)))
+    return SSE,calc_measure
        
 if __name__ =='__main__':
     data_csv = 'CA1.csv'
@@ -126,7 +126,7 @@ if __name__ =='__main__':
         #Glu values are most comparable to the frequency facilitation values also normalize to 100
         values_to_compare = np.array(result['glu'][freqs])/result['glu'][freqs][1]*100
         real_data = real_data_for_error_calc[freqs]
-        SSE,calc_measure = sse(real_data,values_to_compare,measure_pts)
+        SSE,calc_measure = SSE_and_val_extract(real_data,values_to_compare,measure_pts)
         
         plt.figure()
         plt.xlabel('Pulse number')
