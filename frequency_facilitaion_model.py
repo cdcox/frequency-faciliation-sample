@@ -68,6 +68,8 @@ def update(state_values,params,t_spike,measure_pts,t,prev_t):
     krecov0 = params['krecov0']
     krecovmax = params['krecovmax']
     Prel_max = params['Prel_max']
+    Cai0 = params['Cai0']
+    Krel = params['Krel']
     n = 4
     nTot = 1
     glu,Cai,Prel,Rrel,krecov,ICa = state_values
